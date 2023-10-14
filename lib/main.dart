@@ -1,8 +1,8 @@
-//Floated Button(+) 추가 -> Dialog를 사용하여 할일을 입력
-//ListTile 삭제 버튼
-//ListTile의 좌측에 체크를 표시하여 완료 여부를 선택
-//- 완료가 되면 할일에 대한 텍스트를 10/19 오픈소스프로젝트 과제2(취소선) 처럼 표기
-//AppBar에 버튼 추가 -> 완료된 것만 볼수있도록 토글 기능 추가
+// 교안의 Filterd List View를 사용하여 다음과 같은 Todo List를 완성
+// Floated Button(+)를 추가할 것- Dialog를 사용하여 할일을 입력
+// ListTile에 삭제 버튼을 추가. ListTile의 좌측에 체크를 표시하여 완료 여부를 선택
+// 완료가 되면 할일에 대한 텍스트에 취소선
+// AppBar에 버튼을 추가하여 완료된 것만 볼수있도록 토글 기능을 추가
 
 // main.dart
 import 'package:flutter/material.dart';
@@ -15,9 +15,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-        debugShowCheckedModeBanner: false, //디버그 배너 제거
-        title: '~My Todo List~',
-        home: HomePage());
+      debugShowCheckedModeBanner: false, //디버그 배너 제거
+      title: 'Kindacode.com',
+      home: HomePage(),
+    );
   }
 }
 
@@ -29,86 +30,136 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  //변수 정의
-  // ignore: prefer_final_fields
   List<Map<String, dynamic>> _todoList = [
-    {"todo": "과제하기", "isChecked": false},
+    {"todo": "Andy", "bool": false},
+    {"todo": "Aragon", "bool": false},
+    {"todo": "Bob", "bool": false},
+    {"todo": "Barbara", "bool": false},
+    {"todo": "Candy", "bool": false},
+    {"todo": "Colin", "bool": false},
+    {"todo": "Audra", "bool": false},
+    {"todo": "Banana", "bool": false},
+    {"todo": "Caversky", "bool": false},
+    {"todo": "Becky", "bool": false},
   ];
-  List<Map<String, dynamic>> _showList = []; //화면에 출력 중인 데이터
 
-  //함수 정의
-  void _runFilter(String enteredKeyword) {
-    //텍스트필드가 변할 때 쓰는 함수
-    List<Map<String, dynamic>> results = [];
-    if (enteredKeyword.isEmpty) {
-      //검색창 비었을 때
-      results = _todoList;
-    } else {
-      results = _todoList
-          .where((todoList) => todoList["todo"]
-              .toLowerCase()
-              .contains(enteredKeyword.toLowerCase()))
-          .toList();
-    }
-    setState(() {
-      _showList = results;
-    });
-  }
+  List<Map<String, dynamic>> _showList = [];
+
+  final txtcon = TextEditingController();
 
   @override
   initState() {
-    //시작 시 모든 유저 출력
     _showList = _todoList;
     super.initState();
+  }
+
+  void _runFilter(String enteredKeyword) {
+    //필터 동작 함수
+    List<Map<String, dynamic>> results = [];
+    results = enteredKeyword.isEmpty
+        ? _todoList
+        : _todoList
+            .where((value) => value["todo"]
+                .toLowerCase()
+                .contains(enteredKeyword.toLowerCase()))
+            .toList();
+
+    setState(() => _showList = results);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('~~Todo List~~')),
-        body: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(children: [
-              const SizedBox(height: 20),
-              TextField(
-                onChanged: (value) => _runFilter(value),
-                decoration: const InputDecoration(
-                  labelText: 'Search',
-                  suffixIcon: Icon(Icons.search),
-                ),
+      appBar: AppBar(
+        title: const Text('Kindacode.com'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            TextField(
+              onChanged: (value) => _runFilter(value),
+              decoration: const InputDecoration(
+                labelText: 'Search',
+                suffixIcon: Icon(Icons.search),
               ),
-              const SizedBox(height: 20),
-              Expanded(
-                  child: _showList.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: _showList.length,
-                          itemBuilder: (context, index) => Card(
-                            color: Colors.amberAccent,
-                            elevation: 4,
-                            margin: const EdgeInsets.symmetric(vertical: 10),
-                            child: CheckboxListTile(
-                                title: Text(_showList[index]['todo']),
-                                value: _showList[index]['isChecked'],
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    _showList[index]['isChecked'] = value;
-                                  });
-                                }),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: _showList.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: _showList.length,
+                      itemBuilder: (context, index) => Card(
+                        //key: ValueKey(_showList[index]["id"]),
+                        color: Colors.amberAccent,
+                        elevation: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        child: ListTile(
+                          leading: Checkbox(
+                            value: _showList[index]['bool'],
+                            onChanged: (value) {
+                              _showList[index]['bool'] = value;
+                              setState(() => _todoList = _showList);
+                            },
                           ),
-                        )
-                      : const Text('No results found', style: TextStyle(fontSize: 24)))
-            ])),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return const AlertDialog(
-                      title: Text("dialog"),
-                      content: Text("Alert!"),
-                      actions: []);
-                });
-          },
-        ));
+                          title: Text(_showList[index]['todo']),
+                          trailing: ElevatedButton(
+                            child: const Text("X"),
+                            onPressed: () {
+                              _showList.removeAt(index);
+                              setState(() => _todoList = _showList);
+                            },
+                          ),
+                        ),
+                      ),
+                    )
+                  : const Text('No results found',
+                      style: TextStyle(fontSize: 24)),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Text("+"),
+        onPressed: () {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("Insert Todo"),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    TextField(controller: txtcon),
+                    ElevatedButton(
+                      child: const Text("Input Todo"),
+                      onPressed: () {
+                        Map<String, dynamic> item = {
+                          "todo": txtcon.text,
+                          "bool": false,
+                        };
+                        _showList.add(item);
+                        _todoList = _showList;
+                        txtcon.clear();
+                      },
+                    ),
+                  ],
+                ),
+                actions: [
+                  ElevatedButton(
+                    child: const Text("Close"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }
