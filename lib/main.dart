@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _showList = [];
 
   final txtcon = TextEditingController();
-
+  List<bool> isSelected = [false, false, false]; //토ㅋ글버
   @override
   initState() {
     _showList = _todoList;
@@ -67,11 +67,41 @@ class _HomePageState extends State<HomePage> {
     setState(() => _showList = results);
   }
 
+  void _toggleFilter(var tog) {
+    List<Map<String, dynamic>> results = [];
+    if (tog == 2) {
+      //not
+      results = _todoList.where((value) => value["bool"] == false).toList();
+    } else if (tog == 1) {
+      //done
+      results = _todoList.where((value) => value["bool"] == true).toList();
+    } else {
+      //all
+      results = _todoList;
+    }
+
+    setState(() => _showList = results);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Todo List')
+        title: const Text('My Todo List'),
+        actions: [
+          ToggleButtons(
+            isSelected: isSelected,
+            children: const [
+              Text("all"),
+              Text("done"),
+              Text("not"),
+            ],
+            onPressed: (index) {
+              isSelected[index] = !isSelected[index];
+              _toggleFilter(index);
+            },
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
