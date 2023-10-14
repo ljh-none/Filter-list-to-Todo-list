@@ -67,19 +67,20 @@ class _HomePageState extends State<HomePage> {
     setState(() => _showList = results);
   }
 
-  void _toggleFilter(var tog) {
+  void _toggleFilter(var tog, bool check) {
     List<Map<String, dynamic>> results = [];
-    if (tog == 2) {
-      //not
-      results = _todoList.where((value) => value["bool"] == false).toList();
-    } else if (tog == 1) {
-      //done
-      results = _todoList.where((value) => value["bool"] == true).toList();
-    } else {
+    if (tog == 0 && check == true) {
       //all
       results = _todoList;
+    } else if (tog == 1 && check == true) {
+      //done
+      results = _todoList.where((value) => value["bool"] == true).toList();
+    } else if (tog == 2 && check == true) {
+      //not
+      results = _todoList.where((value) => value["bool"] == false).toList();
+    } else {
+      results = _todoList;
     }
-
     setState(() => _showList = results);
   }
 
@@ -91,14 +92,22 @@ class _HomePageState extends State<HomePage> {
         actions: [
           ToggleButtons(
             isSelected: isSelected,
+            selectedColor: Colors.white,
             children: const [
               Text("all"),
               Text("done"),
               Text("not"),
             ],
             onPressed: (index) {
-              isSelected[index] = !isSelected[index];
-              _toggleFilter(index);
+              for (int i = 0; i < 3; i++) {
+                if (i == index) {
+                  isSelected[i] = !isSelected[i];
+                  _toggleFilter(i, isSelected[i]);
+                } else {
+                  isSelected[i] = false;
+                }
+              }
+              ;
             },
           )
         ],
