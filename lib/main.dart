@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kindacode.com'),
+        title: const Text('My Todo List')
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -91,7 +91,6 @@ class _HomePageState extends State<HomePage> {
                   ? ListView.builder(
                       itemCount: _showList.length,
                       itemBuilder: (context, index) => Card(
-                        //key: ValueKey(_showList[index]["id"]),
                         color: Colors.amberAccent,
                         elevation: 4,
                         margin: const EdgeInsets.symmetric(vertical: 10),
@@ -103,7 +102,13 @@ class _HomePageState extends State<HomePage> {
                               setState(() => _todoList = _showList);
                             },
                           ),
-                          title: Text(_showList[index]['todo']),
+                          title: _showList[index]['bool']
+                              ? Text(
+                                  _showList[index]['todo'],
+                                  style: const TextStyle(
+                                      decoration: TextDecoration.lineThrough),
+                                )
+                              : Text(_showList[index]['todo']),
                           trailing: ElevatedButton(
                             child: const Text("X"),
                             onPressed: () {
