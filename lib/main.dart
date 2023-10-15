@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
 
   final txtcon = TextEditingController(); //Dialog의 텍스트필드 컨트롤러
   List<bool> isSelected = [false, false, false]; //Appbar의 토글버튼 상태
-
+  
   @override
   initState() {
     //초기화
@@ -122,7 +122,6 @@ class _HomePageState extends State<HomePage> {
               onChanged: (value) => _runFilter(value),
               decoration: const InputDecoration(
                 labelText: 'Search',
-                suffixIcon: Icon(Icons.search),
               ),
             ),
             const SizedBox(height: 20),
