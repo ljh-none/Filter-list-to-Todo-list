@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false, //디버그 배너 제거
-      title: 'Kindacode.com',
+      title: 'myTodoList',
       home: HomePage(),
     );
   }
@@ -30,25 +30,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  //할 일 저장 리스트, bool값은 체크리스트 상태 저장용
   List<Map<String, dynamic>> _todoList = [
-    {"todo": "Andy", "bool": false},
-    {"todo": "Aragon", "bool": false},
-    {"todo": "Bob", "bool": false},
-    {"todo": "Barbara", "bool": false},
-    {"todo": "Candy", "bool": false},
-    {"todo": "Colin", "bool": false},
-    {"todo": "Audra", "bool": false},
-    {"todo": "Banana", "bool": false},
-    {"todo": "Caversky", "bool": false},
-    {"todo": "Becky", "bool": false},
+    {"todo": "과제 제출", "bool": false},
+    {"todo": "술 약속", "bool": false},
+    {"todo": "분리수거 하기", "bool": false},
   ];
 
-  List<Map<String, dynamic>> _showList = [];
+  List<Map<String, dynamic>> _showList = []; //필터를 위한 출력 전용 리스트
 
-  final txtcon = TextEditingController();
-  List<bool> isSelected = [false, false, false]; //토ㅋ글버
+  final txtcon = TextEditingController(); //Dialog의 텍스트필드 컨트롤러
+  List<bool> isSelected = [false, false, false]; //Appbar의 토글버튼 상태
+
   @override
   initState() {
+    //초기화
     _showList = _todoList;
     super.initState();
   }
@@ -57,8 +53,8 @@ class _HomePageState extends State<HomePage> {
     //필터 동작 함수
     List<Map<String, dynamic>> results = [];
     results = enteredKeyword.isEmpty
-        ? _todoList
-        : _todoList
+        ? _todoList //textfield가 비었을 때 동작
+        : _todoList //textfield에 값이 입력되었을 때 동작
             .where((value) => value["todo"]
                 .toLowerCase()
                 .contains(enteredKeyword.toLowerCase()))
@@ -68,15 +64,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _toggleFilter(var tog, bool check) {
+    //토글버튼 클릭 시 동작 함수
     List<Map<String, dynamic>> results = [];
+    //check 검사 이유 : 같은 토글버튼 2번 클릭시 동작을 else에 정의하기 위해
     if (tog == 0 && check == true) {
-      //all
+      //전체
       results = _todoList;
     } else if (tog == 1 && check == true) {
-      //done
+      //완료
       results = _todoList.where((value) => value["bool"] == true).toList();
     } else if (tog == 2 && check == true) {
-      //not
+      //미완료
       results = _todoList.where((value) => value["bool"] == false).toList();
     } else {
       results = _todoList;
@@ -94,20 +92,22 @@ class _HomePageState extends State<HomePage> {
             isSelected: isSelected,
             selectedColor: Colors.white,
             children: const [
-              Text("all"),
-              Text("done"),
-              Text("not"),
+              Text("전체"),
+              Text("완료"),
+              Text("미완료"),
             ],
             onPressed: (index) {
+              //index=눌린 버튼의 인덱스
               for (int i = 0; i < 3; i++) {
                 if (i == index) {
+                  //눌린 버튼에 해당되는 filter 작동
                   isSelected[i] = !isSelected[i];
                   _toggleFilter(i, isSelected[i]);
                 } else {
+                  //나머지 버튼은 선택상태 해제
                   isSelected[i] = false;
                 }
               }
-              ;
             },
           )
         ],
@@ -118,6 +118,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             const SizedBox(height: 20),
             TextField(
+              //검색 필터
               onChanged: (value) => _runFilter(value),
               decoration: const InputDecoration(
                 labelText: 'Search',
@@ -127,6 +128,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
             Expanded(
               child: _showList.isNotEmpty
+                  //출력용 리스트가 비어있지 않으면
                   ? ListView.builder(
                       itemCount: _showList.length,
                       itemBuilder: (context, index) => Card(
@@ -141,14 +143,17 @@ class _HomePageState extends State<HomePage> {
                               setState(() => _todoList = _showList);
                             },
                           ),
-                          title: _showList[index]['bool']
+                          title: _showList[index]['bool'] //체크 시 취소선 추가
+                              //체크 상태(true)라면
                               ? Text(
                                   _showList[index]['todo'],
                                   style: const TextStyle(
                                       decoration: TextDecoration.lineThrough),
                                 )
+                              //체크 해제 상태(false)라면
                               : Text(_showList[index]['todo']),
                           trailing: ElevatedButton(
+                            //삭제 버튼
                             child: const Text("X"),
                             onPressed: () {
                               _showList.removeAt(index);
@@ -158,6 +163,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     )
+                  //출력용 리스트가 비어있으면
                   : const Text('No results found',
                       style: TextStyle(fontSize: 24)),
             ),
@@ -167,37 +173,40 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         child: const Text("+"),
         onPressed: () {
+          //클릭 시 다이얼로그 출력
           showDialog(
             context: context,
-            barrierDismissible: false,
+            barrierDismissible: false, //다이얼로그 바깥 클릭 시 탈출 방지
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text("Insert Todo"),
+                title: const Text("할 일 입력"),
                 content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(controller: txtcon),
                     ElevatedButton(
-                      child: const Text("Input Todo"),
+                      //추가 버튼
+                      child: const Text("추가하기"),
                       onPressed: () {
                         Map<String, dynamic> item = {
                           "todo": txtcon.text,
-                          "bool": false,
+                          "bool": false
                         };
                         _showList.add(item);
-                        _todoList = _showList;
                         txtcon.clear();
+                        setState(() => _todoList = _showList);
                       },
                     ),
                   ],
                 ),
                 actions: [
+                  //닫기 버튼
                   ElevatedButton(
-                    child: const Text("Close"),
+                    child: const Text("닫기"),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                  )
+                  ),
                 ],
               );
             },
